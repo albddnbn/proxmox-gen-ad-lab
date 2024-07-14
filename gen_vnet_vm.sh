@@ -4,7 +4,7 @@
 # Date: 7/13/2024
 # Description: create a new VM in Proxmox. Used to create a domain controller / Windows Server VM, or client Windows 10 VMs.
 
-## If key values are not set - script will prompt user for values during execution.
+## If values are not set - script will prompt user for values during execution.
 declare -A VARS=(
   ## Virtual networking:
   ["ZONE_NAME"]=""    # Ex: testzone
@@ -70,7 +70,7 @@ echo "LAN_REPLACEMENT_STR: ${VARS[LAN_REPLACEMENT_STR]}"
 readarray -t nodes < <(pvesh ls /nodes)
 length=${#nodes[@]}
 if [[ $length -gt 1 ]]; then
-  echo "Multiple nodes found. Please select the node you would like to use."
+  echo "\e[33mMultiple nodes found:\e[0m Please select the node you would like to use."
   filename_strings=()
   for ((i=0; i<$length; i++)); do
     IFS='        ' read -ra split_line <<< "${nodes[$i]}"
@@ -79,7 +79,7 @@ if [[ $length -gt 1 ]]; then
   echo "Please select your node name:"
   select NODE_NAME in "${filename_strings[@]}"; do
     if [[ -n $NODE_NAME ]]; then
-      echo "You have selected: $NODE_NAME"
+      echo -e "You have selected: \e[33m$NODE_NAME\e[0m"
       break
     else
       echo "Invalid selection. Please try again."
@@ -88,6 +88,8 @@ if [[ $length -gt 1 ]]; then
 else
   IFS='        ' read -ra split_line <<< "${nodes[0]}"
   NODE_NAME="${split_line[1]}"
+  echo -e "Auto-selected node: \e[33m$NODE_NAME\e[0m"
+
 fi
 
 ## User is presented with two more menus.
@@ -111,15 +113,15 @@ done
 
 ## User is almost assuredly prompted for storage paths using a menu system.
 declare -A STORAGE_OPTIONS=(
-  ["ISO_STORAGE"]="Please select storage that contains Windows and Virtio ISOs:"
-  ["VM_STORAGE"]="Please select storage to be used for VM hard disks:"
+  ["ISO_STORAGE"]="Please select storage that contains \e[33mWindows and Virtio ISOs:\e[0m"
+  ["VM_STORAGE"]="Please select storage to be used for \e[33mVM hard disks:\e[0m"
 )
 
 for var in "${!STORAGE_OPTIONS[@]}"; do
-  echo "${STORAGE_OPTIONS[$var]}"
+  echo -e "${STORAGE_OPTIONS[$var]}"
   select STORAGE_OPTION in "${filename_strings[@]}"; do
     if [[ -n $STORAGE_OPTION ]]; then
-      echo "You have selected: $STORAGE_OPTION"
+      echo -e "Disk selected: \e[33m$STORAGE_OPTION\e[0m\n"
       STORAGE_OPTIONS[$var]=$STORAGE_OPTION
       break
     else
@@ -141,13 +143,12 @@ pvesh create /cluster/sdn/vnets/${VARS['VNET_NAME']}/subnets --subnet "${VARS['V
 echo "Applying SDN configuration."
 pvesh set /cluster/sdn
 
-
 ## Using the chosen iso_storage option - present menus to user so they can choose the actual ISOs that will be attached
 ## to the new VM:
 
 declare -A chosen_isos=(
-  ["main_iso"]="Please select operating system ISO:"
-  ["virtio_iso"]="Please select VirtIO / Secondary ISO:"
+  ["main_iso"]="Please select \e[33moperating system ISO:\e[0m"
+  ["virtio_iso"]="Please select \e[33mVirtIO / Secondary ISO:\e[0m"
 )
 
 #echo "/nodes/$NODE_NAME/storage/${STORAGE_OPTIONS['ISO_STORAGE']}/content"
@@ -163,10 +164,10 @@ done
 
 
 for var in "${!chosen_isos[@]}"; do
-  echo "${chosen_isos[$var]}"
+  echo -e "${chosen_isos[$var]}"
   select STORED_ISO in "${filename_strings[@]}"; do
     if [[ -n $STORED_ISO ]]; then
-      echo "You have selected: $STORED_ISO"
+      echo -e "You have selected: \e[33m$STORED_ISO\e[0m\n"
       chosen_isos[$var]=$STORED_ISO
       break
     else
@@ -175,7 +176,7 @@ for var in "${!chosen_isos[@]}"; do
   done
 done;
 
-echo -e "Creating VM: \e[36m${VARS['VM_NAME']}\e[0m"
+echo -e "Creating VM: \e[36m${VARS['VM_NAME']}\e[0m\n"
 
 ## Creates a vm using specified ISO(s) and storage locations.
 # Reference for 'ideal' VM settings: https://davejansen.com/recommended-settings-windows-10-2016-2018-2019-vm-proxmox/
