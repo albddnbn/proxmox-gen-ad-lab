@@ -26,3 +26,6 @@ gen_vnet_vm.sh will do a few things:
 - Installs and configures DHCP Server with single DHCP scope
 - Creates AD DS OUs, Groups, Users
 - Creates file shares for roaming profiles/folder redirection and configures permissions
+
+## Configuration
+You can configure Active Directory domain-related settings in the config.ps1 file. This file is dot-sourced at the beginning of each of the 'step' scripts to introduce the configuration variables. I decided to use a .ps1 file / variables for configuration rather than a JSON, so that I could easily comment and add instructions to the config file.
