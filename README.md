@@ -5,6 +5,7 @@ A collection of bash/powershell scripts to generate an Active Directory lab in P
 ## Basic usage:
 
 ### First, run gen_vnet_vm.sh
+<b>VMs created using this script prompt for many values, but some settings are explicitly hard-coded based on recommendations from various articles, like this one: https://davejansen.com/recommended-settings-windows-10-2016-2018-2019-vm-proxmox/</b>
 
 gen_vnet_vm.sh will do a few things:
 
