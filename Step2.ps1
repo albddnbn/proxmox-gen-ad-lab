@@ -6,10 +6,10 @@ param(
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
     [Parameter(Mandatory = $false)]
     $config_ps1 = "config.ps1"
-    )
+)
 ## Dot source configuration variables:
 try {
-    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1" -File -ErrorAction Stop
+    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1" -File -Recurse -ErrorAction Stop
     Write-Host "Found $($config_ps1.fullname), dot-sourcing configuration variables.."
 
     . ".\$($config_ps1.name)"
@@ -20,6 +20,14 @@ catch {
     Read-Host "Press enter to exit.."
     Return 1
 }
+
+## Get rid of the scheduled task for this script
+Get-ScheduledTask | ? { $_.TasKName -like "step2*adlab" } | Unregister-ScheduledTask -Confirm:$false
+
+## create scheduled task for step3.ps1:
+$step3_filepath = (get-item ./step3.ps1).fullname
+. ./create_scheduled_task.ps1 -task_name 'step3_genadlab' -task_file_path "$step3_filepath"
+
 Write-Host "[$(Get-Date -Format 'mm-dd-yyyy HH:mm:ss')] :: Creating variables from $configjson JSON file."
 ## Variables from json file:
 $DOMAIN_NAME = $DOMAIN_CONFIG.Name

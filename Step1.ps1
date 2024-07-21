@@ -9,10 +9,10 @@ param(
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
     [Parameter(Mandatory = $false)]
     $config_ps1 = "config.ps1"
-    )
+)
 ## Dot source configuration variables:
 try {
-    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1" -File -ErrorAction Stop
+    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1" -File -Recurse -ErrorAction Stop
     Write-Host "Found $($config_ps1.fullname), dot-sourcing configuration variables.."
 
     . ".\$($config_ps1.name)"
@@ -81,6 +81,11 @@ Write-Host "[$(Get-Date -Format 'mm-dd-yyyy HH:mm:ss')] :: Enabling Network Disc
 ForEach ($rulegroup in @("Network Discovery", "File and Printer Sharing")) {
     Enable-NetFirewallRule -DisplayGroup $rulegroup | Out-Null
 }
+
+## create scheduled task for step 2:s
+$step2_filepath = (get-item ./step2.ps1).fullname
+. ./create_scheduled_task.ps1 -task_name 'step2_genadlab' -task_file_path "$step2_filepath"
+
 
 ## Until the kinks are worked out of the scheduled task method, or better method found:
 Write-Host "After rebooting, run the step2.ps1 script." -Foregroundcolor Yellow

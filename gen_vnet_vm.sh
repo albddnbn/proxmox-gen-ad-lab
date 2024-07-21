@@ -1,34 +1,34 @@
 #!/bin/bash
 # Script Name: gen_vnet_vm.sh
 # Author: Alex B.
-# Date: 7/14/2024
+# Date: 7/13/2024
 # Description: create a new VM in Proxmox. Used to create a domain controller / Windows Server VM, or client Windows 10 VMs.
 
 ## If values are not set - script will prompt user for values during execution.
 declare -A VARS=(
   ## Virtual networking:
-  ["ZONE_NAME"]=""                     # Ex: testzone
-  ["ZONE_COMMENT"]=""                  # Ex: This is a test zone comment.
-  ["VNET_NAME"]=""                     # Ex: testvnet
-  ["VNET_ALIAS"]=""                    # Ex: testvnet
-  ["VNET_SUBNET"]=""                   # Ex: 10.0.0.0/24
-  ["VNET_GATEWAY"]=""                  # Ex: 10.0.0.1
+  ["ZONE_NAME"]="zone3"                     # Ex: testzone
+  ["ZONE_COMMENT"]="AD Test zone3"                  # Ex: This is a test zone comment.
+  ["VNET_NAME"]="vnet3"                     # Ex: testvnet
+  ["VNET_ALIAS"]="vnet3zone3"                    # Ex: testvnet
+  ["VNET_SUBNET"]="10.0.22.0/24"                   # Ex: 10.0.0.0/24
+  ["VNET_GATEWAY"]="10.0.22.1"                  # Ex: 10.0.0.1
 
   ## Details for VM creation:
-  ["VM_ID"]=""                         # Ex: 101
-  ["VM_NAME"]=""                       # Ex: lab-dc-01
+  ["VM_ID"]="222"                         # Ex: 101
+  ["VM_NAME"]="test-dc-3"                       # Ex: lab-dc-01
   ["FIREWALL_RULES_FILE"]="dc-vm-rules.txt"
 
   ## 'Aliases' used for firewall rules/elsewhere in Proxmox OS
-  ["DC_ALIAS"]=""                      # Ex: labdc
+  ["DC_ALIAS"]="testdc3"                      # Ex: labdc
   ["DC_COMMENT"]="Domain controller"   # Ex: Domain Controller
-  ["DC_CIDR"]=""                       # Ex: 10.0.0.2/32
+  ["DC_CIDR"]="10.0.22.2/32"                       # Ex: 10.0.0.2/32
   ## Used to replace string with dc_alias in firewall rules file:
   ["DC_REPLACEMENT_STR"]="((\$DC_ALIAS\$))"
 
-  ["LAN_ALIAS"]=""                     # Ex: lablan
+  ["LAN_ALIAS"]="dc3lan"                     # Ex: lablan
   ["LAN_COMMENT"]="Domain LAN"         # Ex: Domain LAN
-  ["LAN_CIDR"]=""                      # Ex: 10.0.0.1/24
+  ["LAN_CIDR"]="10.0.22.1/24"                      # Ex: 10.0.0.1/24
   ## Used to replace string with lan_alias in firewall rules file:
   ["LAN_REPLACEMENT_STR"]="((\$LAN_ALIAS\$))"
 )
