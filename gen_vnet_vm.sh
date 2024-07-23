@@ -31,6 +31,7 @@ declare -A VARS=(
   ["LAN_CIDR"]="10.0.22.1/24"                      # Ex: 10.0.0.1/24
   ## Used to replace string with lan_alias in firewall rules file:
   ["LAN_REPLACEMENT_STR"]="((\$LAN_ALIAS\$))"
+  ["VM_HARDDISK_SIZE"]="60"                    # Ex: 60 would create a 60 GB hard disk.
 )
 
 ## The user is prompted for two storage disk choices.
@@ -190,7 +191,7 @@ pvesh create /nodes/$NODE_NAME/qemu -vmid ${VARS['VM_ID']} -name "${VARS['VM_NAM
       -ide1 "${chosen_isos['virtio_iso']},media=cdrom" -net0 "virtio,bridge=${VARS['VNET_NAME']},firewall=1" \
       -scsihw virtio-scsi-pci -bios ovmf -machine pc-q35-8.1 -tpmstate "${STORAGE_OPTIONS['VM_STORAGE']}:4,version=v2.0," \
       -efidisk0 "${STORAGE_OPTIONS['VM_STORAGE']}:1" -bootdisk ide2 -ostype win11 \
-      -agent 1 -virtio0 "${STORAGE_OPTIONS['VM_STORAGE']}:32,iothread=1,format=qcow2" -boot "order=ide2;virtio0;scsi0"
+      -agent 1 -virtio0 "${STORAGE_OPTIONS['VM_STORAGE']}:${VARS['VM_HARDDISK_SIZE']},iothread=1,format=qcow2" -boot "order=ide2;virtio0;scsi0"
       #-scsi0 "$VM_STORAGE:20,iothread=1,backup=1,snapshot=1"
 
 ## FIREWALL RULES FOR VM (/etc/pve/firewall)
