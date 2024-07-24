@@ -3,14 +3,14 @@
 param(
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
     [Parameter(Mandatory = $false)]
-    $config_ps1 = "config.ps1"
+    $config_ps1_file = "config.ps1"
 )
 ## Dot source configuration variables:
 try {
-    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1" -File -ErrorAction Stop
+    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1_file" -File -ErrorAction Stop
     Write-Host "Found $($config_ps1.fullname), dot-sourcing configuration variables.."
 
-    . ".\$($config_ps1.name)"
+    . "$($config_ps1.fullname)"
 }
 catch {
 

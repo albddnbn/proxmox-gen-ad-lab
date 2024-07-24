@@ -2,7 +2,7 @@ param(
     $num_users = 50,
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
     [Parameter(Mandatory = $false)]
-    $config_ps1 = "config.ps1", ## Domain config variables
+    $config_ps1_file = "config.ps1",
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
     $user_data_file = "random_user_data.csv",
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
@@ -10,10 +10,10 @@ param(
 )
 ## Dot source configuration variables:
 try {
-    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1" -File -ErrorAction Stop
+    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1_file" -File -ErrorAction Stop
     Write-Host "Found $($config_ps1.fullname), dot-sourcing configuration variables.."
 
-    . ".\$($config_ps1.name)"
+    . "$($config_ps1.fullname)"
 }
 catch {
 
@@ -27,13 +27,15 @@ $DC_HOSTNAME = (Get-ADDomainController).HostName
 
 
 # try {
-$USER_DATA = Import-CSV $user_data_file
+$user_data_file = Get-ChildItem -Path '.' -Filter "$user_data_file" -File -Recurse -ErrorAction Stop | SElect -exp fullname
+$USER_DATA = Import-CSV "$user_data_file"
 # }
 # catch {
 #     Write-Host "Something went wrong importing the user data file at: $user_data_file." -ForegroundColor Yellow
 # }
 
 # try {
+$department_data_file = Get-ChildItem -Path '.' -Filter "$department_data_file" -File -Recurse -ErrorAction Stop | Select -exp fullname
 $DEPT_DATA = Import-CSV $department_data_file
 # }
 # catch {
@@ -73,7 +75,7 @@ $user_info = $USER_DATA | Get-Random -Count $num_users
 ## Hopefully using modulus here will take into account leftover users.
 $deptIndex = 0
 foreach ($user in $user_info) {
-$user | add-member -membertype noteproperty -name department -value $null
+    $user | add-member -membertype noteproperty -name department -value $null
     $user.department = $DEPT_DATA[$deptIndex % $DEPT_DATA.Count].department_name
     $deptIndex++
 }

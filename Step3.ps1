@@ -147,5 +147,5 @@ Powershell.exe -ExecutionPolicy Bypass "$($user_creation_script.fullname)"
 ## Create file shares
 Powershell.exe -ExecutionPolicy Bypass "$($fileshare_creation_script.fullname)"
 
-Get-ScheduledTask -Name 'step3_genadlab' | Unregister-ScheduledTask -Confirm:$false
+Get-ScheduledTask -TaskName 'step3_genadlab' -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
 
