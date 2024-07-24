@@ -2,30 +2,32 @@
 ## Script will remove specified zone, and all of it's vnet/subnet children in Proxmox VE using Proxmox API.
 ## Created by Alex B. / July 21, 2024
 
-apt install jq -y
+apt install jq dialog -y
 
-## Creates a list of all Zones in the Proxmox cluster
-readarray -t zones_list < <(pvesh ls /cluster/sdn/zones)
-length=${#zones_list[@]}
-zone_names_list=()
-# Split each line and add the second element to the array
-for ((i=0; i<$length; i++)); do
-    IFS='        ' read -ra split_line <<< "${zones_list[$i]}"
-    zone_names_list+=("${split_line[1]}")
+#!/bin/bash
+cmd=(dialog --keep-tite --menu "Select zone to remove:" 22 76 16)
+count=0
+
+options=()
+test_options=$(pvesh get /cluster/sdn/zones --type simple --noborder --output json | jq -r '.[] | .zone')
+matching_options=()
+for single_option in $test_options; do
+    echo "single_option: $single_option"
+    added_string="$((++count)) "$single_option""
+    matching_options+=($single_option)
+    options+=($added_string)
 done
 
-## Use the zone list to present menu to user - user selects zone they want to completely remove
-echo -e "\nPlease select the \e[33mzone you'd like to remove:\e[0m"
-    select ZONE_CHOICE in "${zone_names_list[@]}"; do
-    if [[ -n $ZONE_CHOICE ]]; then
-        echo -e "Zone selected: \e[33m$ZONE_CHOICE\e[0m\n"
-        ZONE_CHOICE[$var]=$ZONE_CHOICE
-        break
-    else
-        echo "Invalid selection. Please try again."
-    fi
-done;
+choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
+printf -v final_choice "%s\n" "${choices[@]}"
+
+## subtract one from final_choice
+final_choice=$((final_choice-1))
+
+echo "Removing zone: ${matching_options[$final_choice]}"
+
+ZONE_CHOICE="${matching_options[$final_choice]}"
 
 ## Creates an array of listings from the vnet API endpoint
 readarray -t vnets_json_string < <(pvesh get /cluster/sdn/vnets --noborder --output-format json | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]")
@@ -59,7 +61,8 @@ for i in "${vnets_json_string[@]}"; do
 done
 
 ## Delete the zone:
-pvesh delete /cluster/sdn/zones/$ZONE_CHOICE
+echo "/cluster/sdn/zones/$ZONE_CHOICE"
+pvesh delete "/cluster/sdn/zones/$ZONE_CHOICE"
 
 ## Reload networking config:
 pvesh set /cluster/sdn
