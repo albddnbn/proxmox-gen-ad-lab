@@ -5,7 +5,7 @@
 param(
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
     [Parameter(Mandatory = $false)]
-    $config_ps1 = "config.ps1"
+    $config_ps1_filename = "config.ps1"
 )
 ## Dot source configuration variables:
 try {
