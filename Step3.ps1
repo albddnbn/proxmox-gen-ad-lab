@@ -5,7 +5,7 @@
 param(
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
     [Parameter(Mandatory = $false)]
-    $config_ps1 = "config.ps1",
+    $config_ps1_filename = "config.ps1",
     [ValidateScript({ Test-Path $_ -PathType Leaf })]
     [Parameter(Mandatory = $false)]
     [string]$user_creation_ps1_file = "create_user_population.ps1",
