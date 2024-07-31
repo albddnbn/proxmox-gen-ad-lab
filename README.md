@@ -113,7 +113,7 @@ In this example, I'm extracting the ID of the USB device and using it with the <
 
 7. Run Step1.ps1 on the Domain Controller VM.
 
-![Run Step1.ps1](img/running_step1_008.png)
+![Run Step1.ps1](img/running_Step1_008.png)
 
 8. Reboot to apply changes (static IP addressing, new hostname, enabled file/printer sharing, etc.):
 
