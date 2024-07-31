@@ -137,6 +137,8 @@ Logging in will initiate the last step, Step3.ps1.
 
 1. Check on possibility that Step 3 scheduled task not properly removed during script.
 
+2. Try to decrease level of human interaction required in process (mostly the powershell script/steps).
+
 ## Coming Soon:
 
 MDT Server installation/configuration.
