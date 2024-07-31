@@ -7,7 +7,7 @@ param(
 )
 ## Dot source configuration variables:
 try {
-    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1_file" -File -ErrorAction Stop
+    $config_ps1 = Get-ChildItem -Path '.' -Filter "$config_ps1_file" -File -Recurse -ErrorAction Stop
     Write-Host "Found $($config_ps1.fullname), dot-sourcing configuration variables.."
 
     . "$($config_ps1.fullname)"
