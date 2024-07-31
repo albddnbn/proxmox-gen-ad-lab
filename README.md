@@ -30,3 +30,6 @@ gen_vnet_vm.sh will do a few things:
 
 ## Configuration
 You can configure Active Directory domain-related settings in the config.ps1 file. This file is dot-sourced at the beginning of each of the 'step' scripts to introduce the configuration variables. I decided to use a .ps1 file / variables for configuration rather than a JSON, so that I could easily comment and add instructions to the config file.
+
+## Coming Soon
+1. MDT Server installation/configuration
