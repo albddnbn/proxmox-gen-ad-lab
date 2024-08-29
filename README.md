@@ -1,7 +1,5 @@
 # proxmox-gen-ad-lab
-![Bash](https://img.shields.io/badge/language-Bash-blue.svg)
-![PowerShell](https://img.shields.io/badge/language-PowerShell-green.svg)
-
+![Powershell](https://img.shields.io/badge/language-Powershell-0078D4) ![Bash](https://img.shields.io/badge/Bash-05c100)  
 
 A collection of bash/powershell scripts to generate an Active Directory lab in Proxmox.
 
