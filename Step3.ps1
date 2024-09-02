@@ -13,6 +13,9 @@ param(
     [Parameter(Mandatory = $false)]
     [string]$fileshares_ps1_file = "create_fileshares.ps1"
 )
+## Set Window Title to Step
+$host.ui.RawUI.WindowTitle = "Step 3"
+
 ## Make sure user creation script can be accessed:
 $user_creation_script = Get-ChildItem -Path './config' -Filter "$user_creation_ps1_file" -File -ErrorAction Stop
 $fileshare_creation_script = Get-ChildItem -Path './config' -Filter "$fileshares_ps1_file" -File -ErrorAction Stop

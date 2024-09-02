@@ -7,6 +7,9 @@ param(
     [Parameter(Mandatory = $false)]
     $config_ps1_filename = "config.ps1"
 )
+## Set Window Title to Step
+$host.ui.RawUI.WindowTitle = "Step 2"
+
 ## Dot source configuration variables:
 try {
     $config_ps1 = Get-ChildItem -Path './config' -Filter "$config_ps1_filename" -File -ErrorAction Stop
