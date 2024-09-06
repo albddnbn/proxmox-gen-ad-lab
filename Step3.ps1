@@ -19,6 +19,7 @@ $host.ui.RawUI.WindowTitle = "Step 3"
 ## Make sure user creation script can be accessed:
 $user_creation_script = Get-ChildItem -Path './config' -Filter "$user_creation_ps1_file" -File -ErrorAction Stop
 $fileshare_creation_script = Get-ChildItem -Path './config' -Filter "$fileshares_ps1_file" -File -ErrorAction Stop
+$run_mdt_setup = Get-ChildItem -Path '.' -Filter "mdtsetup.ps1" -File -ErrorAction SilentlyContinue
 
 ## Dot source configuration variables:
 try {
@@ -151,3 +152,6 @@ Powershell.exe -ExecutionPolicy Bypass "$($user_creation_script.fullname)"
 
 ## Create file shares
 Powershell.exe -ExecutionPolicy Bypass "$($fileshare_creation_script.fullname)"
+
+## Run MDT-Setup from: https://github.com/Digressive/MDT-Setup
+Powershell.exe -ExecutionPolicy Bypass "$($run_mdt_setup.fullname)"
