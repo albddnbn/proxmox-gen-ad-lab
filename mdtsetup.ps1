@@ -15,7 +15,68 @@ if ($mdt_setup_script) {
 }
 else {
     Write-Host "MDT-Setup script not found. Exiting..."
+    exit 1
 }
 
+## NOTE: I have tested this successfully on Windows Server 2022 running in a Proxmox VM.
+## Since I was using VirtIO storage - I had to add VirtIO driver injection to the MDT Task 
+## sequence to circumvent the 'disk not found' error when trying to format/partition disk.
+## I'm planning to either add this into the script or create an article detailing the quick change I made to get the deployment
+## working in Proxmox VE.
+
+## Import mdt module:
+$mdt_module = Get-ChildItem -Path "C:\Program Files\Microsoft Deployment Toolkit\bin" -Filter "MicrosoftDeploymentToolkit.psd1" -File -ErrorAction SilentlyContinue
+if (-not $mdt_module) {
+    Write-Host "MDT module file not found, exiting."
+    exit 1
+}
+
+Write-Host "Found $($mdt_module.fullname), importing..."
+ipmo $($mdt_module.fullname)
+
+## Enable MDT Monitor Service
+Enable-MDTMonitorService -Verbose
+
+# default deployment share name
+$deployshare = "C:\deployshare"
+New-PSDrive -Name "DS001" -PSProvider MDTProvider -Root $deployshare -Description "MDT Deployment Share" -Verbose
+
+
+## find virtio drivers disk by targeting virtio msi
+## Check for virtio 64-bit Windows driver installer MSI file by cycling through base of connected drives.
+$drives = Get-PSDrive -PSProvider FileSystem
+foreach ($drive in $drives) {
+    $file = Get-ChildItem -Path $drive.Root -Filter "virtio-win-gt-x64.msi" -File -ErrorAction SilentlyContinue
+    # If/once virtio msi is found - attempt to install silently and discontinue the searching of drives.
+    if ($file) {
+
+        ## VirtIO Win10 storage drivers path:
+        $w10_folder = Get-Item -Path "$($drive.root)amd64\w10" -ErrorAction SilentlyContinue
+        if (-not $w10_folder) {
+            Write-Host "amd64/w10 folder not found in $($drive.root)" -Foregroundcolor yellow
+            Read-Host "Press enter to continue"
+        }
+        else {
+
+            ## get model name for folder:
+            $modelname = Get-Ciminstance -class win32_computersystem | select -exp model
+            $makename = Get-Ciminstance -class win32_computersystem | select -exp manufacturer
+
+            Write-Host "Creating VirtIO driver folder in Deployment share"
+            ## create virtio driver folder:
+            New-Item -Path "DS001:\Out-of-box drivers\$makename" -ItemType Directory
+            New-Item -Path "DS001:\Out-of-box drivers\$makename\$modelname" -ItemType Directory
+
+            Write-Host "Importing VirtIO drivers to deployment share.."
+            ## Import virtio drivers to MDT:
+            Import-MDTDriver -Path "DS001:\Out-of-box drivers\$makename\$modelname" -SourcePath $w10_folder.FullName -Verbose
+
+        }
+        break
+    }
+}
+
+## update the deployment share:
+Update-MDTDeploymentShare -Path "DS001:" -Verbose
 
 
