@@ -28,7 +28,7 @@ Write-Host "Found $($mdt_module.fullname), importing..."
 ipmo $($mdt_module.fullname)
 
 ## Enable MDT Monitor Service
-Enable-MDTMonitorService -Verbose
+Enable-MDTMonitorService -EventPort 9800 -DataPort 9801 -Verbose
 
 # default deployment share name
 $deployshare = "C:\deployshare"
