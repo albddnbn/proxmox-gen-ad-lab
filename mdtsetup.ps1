@@ -14,8 +14,6 @@ else {
 ## NOTE: I have tested this successfully on Windows Server 2022 running in a Proxmox VM.
 ## Since I was using VirtIO storage - I had to add VirtIO driver injection to the MDT Task 
 ## sequence to circumvent the 'disk not found' error when trying to format/partition disk.
-## I'm planning to either add this into the script or create an article detailing the quick change I made to get the deployment
-## working in Proxmox VE.
 
 ## Import mdt module:
 $mdt_module = Get-ChildItem -Path "C:\Program Files\Microsoft Deployment Toolkit\bin" -Filter "MicrosoftDeploymentToolkit.psd1" -File -ErrorAction SilentlyContinue
@@ -27,13 +25,16 @@ if (-not $mdt_module) {
 Write-Host "Found $($mdt_module.fullname), importing..."
 ipmo $($mdt_module.fullname)
 
-## Enable MDT Monitor Service
-Enable-MDTMonitorService -EventPort 9800 -DataPort 9801 -Verbose
+
+
 
 # default deployment share name
 $deployshare = "C:\deployshare"
 New-PSDrive -Name "DS001" -PSProvider MDTProvider -Root $deployshare -Description "MDT Deployment Share" -Verbose
 
+## Enable MDT Monitor Service
+Enable-MDTMonitorService -EventPort 9800 -DataPort 9801 -Verbose
+Set-ItemProperty -path DS001: -name MonitorHost -value $env:COMPUTERNAME
 
 ## find virtio drivers disk by targeting virtio msi
 ## Check for virtio 64-bit Windows driver installer MSI file by cycling through base of connected drives.
@@ -52,17 +53,21 @@ foreach ($drive in $drives) {
         else {
 
             ## get model name for folder:
-            $modelname = Get-Ciminstance -class win32_computersystem | select -exp model
-            $makename = Get-Ciminstance -class win32_computersystem | select -exp manufacturer
+            # $modelname = Get-Ciminstance -class win32_computersystem | select -exp model
+            # $makename = Get-Ciminstance -class win32_computersystem | select -exp manufacturer
 
             Write-Host "Creating VirtIO driver folder in Deployment share"
             ## create virtio driver folder:
-            New-Item -Path "DS001:\Out-of-box drivers\$makename" -ItemType Directory
-            New-Item -Path "DS001:\Out-of-box drivers\$makename\$modelname" -ItemType Directory
+            # New-Item -Path "DS001:\Out-of-box drivers\$makename" -ItemType Directory
+            # New-Item -Path "DS001:\Out-of-box drivers\$makename\$modelname" -ItemType Directory
 
-            Write-Host "Importing VirtIO drivers to deployment share.."
-            ## Import virtio drivers to MDT:
-            Import-MDTDriver -Path "DS001:\Out-of-box drivers\$makename\$modelname" -SourcePath $w10_folder.FullName -Verbose
+            # Write-Host "Importing VirtIO drivers to deployment share.."
+            # ## Import virtio drivers to MDT:
+            # Import-MDTDriver -Path "DS001:\Out-of-box drivers\$makename\$modelname" -SourcePath $w10_folder.FullName -Verbose
+
+            New-Item -Path "DS001:\Out-of-box drivers\WinPE\VirtIO" -ItemType Directory
+            Import-MDTDriver -Path "DS001:\Out-of-box drivers\WinPE\VirtIO" -SourcePath $w10_folder.FullName -Verbose
+
 
         }
         break
