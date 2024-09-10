@@ -11,9 +11,13 @@ else {
     exit 1
 }
 
-## NOTE: I have tested this successfully on Windows Server 2022 running in a Proxmox VM.
-## Since I was using VirtIO storage - I had to add VirtIO driver injection to the MDT Task 
-## sequence to circumvent the 'disk not found' error when trying to format/partition disk.
+## NOTE: I have tested this successfully on Windows Server 2022 running in a Proxmox VM (currently adding changes into this script)
+
+## Configurations made:
+## 1. Monitoring service enabled.
+## 2. VirtIO storage drivers for win10 added to WinPE drivers folder in deployment share.
+## TODO:
+## 3. VirtIO Windows drivers installation via application/msi?
 
 ## Import mdt module:
 $mdt_module = Get-ChildItem -Path "C:\Program Files\Microsoft Deployment Toolkit\bin" -Filter "MicrosoftDeploymentToolkit.psd1" -File -ErrorAction SilentlyContinue
