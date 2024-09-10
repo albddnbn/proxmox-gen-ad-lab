@@ -60,17 +60,26 @@ foreach ($drive in $drives) {
             # $modelname = Get-Ciminstance -class win32_computersystem | select -exp model
             # $makename = Get-Ciminstance -class win32_computersystem | select -exp manufacturer
 
-            Write-Host "Creating VirtIO driver folder in Deployment share"
+            Write-Host "Creating VirtIO driver folder in Out-of-box drivers\WinPE folder."
             ## create virtio driver folder:
-            # New-Item -Path "DS001:\Out-of-box drivers\$makename" -ItemType Directory
-            # New-Item -Path "DS001:\Out-of-box drivers\$makename\$modelname" -ItemType Directory
+            New-Item -Path "DS001:\Out-of-box drivers\$makename" -ItemType Directory
+            New-Item -Path "DS001:\Out-of-box drivers\$makename\$modelname" -ItemType Directory
 
-            # Write-Host "Importing VirtIO drivers to deployment share.."
-            # ## Import virtio drivers to MDT:
-            # Import-MDTDriver -Path "DS001:\Out-of-box drivers\$makename\$modelname" -SourcePath $w10_folder.FullName -Verbose
+            Write-Host "Importing VirtIO drivers to deployment share.."
+            ## Import virtio drivers to MDT:
+            Import-MDTDriver -Path "DS001:\Out-of-box drivers\$makename\$modelname" -SourcePath $w10_folder.FullName -Verbose
 
             New-Item -Path "DS001:\Out-of-box drivers\WinPE\VirtIO" -ItemType Directory
+
+
+            ## Get ALL w10 amd64 drivers from virtio iso and import into make/model folder for injection
             Import-MDTDriver -Path "DS001:\Out-of-box drivers\WinPE\VirtIO" -SourcePath $w10_folder.FullName -Verbose
+
+            $folders = Get-ChildItem -Path $drive.root -Include 'amd64' -Directory -Recurse | ? { $_.Parent.name -eq 'w10' }
+
+            $folders | % {
+                Import-MDTDriver -Path "DS001:\Out-of-box drivers\$makename\$modelname" -SourcePath $_.fullname -verbose
+            }
 
 
         }
