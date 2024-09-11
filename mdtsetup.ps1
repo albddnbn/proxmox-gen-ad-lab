@@ -30,8 +30,6 @@ Write-Host "Found $($mdt_module.fullname), importing..."
 ipmo $($mdt_module.fullname)
 
 
-
-
 # default deployment share name
 $deployshare = "C:\deployshare"
 New-PSDrive -Name "DS001" -PSProvider MDTProvider -Root $deployshare -Description "MDT Deployment Share" -Verbose
