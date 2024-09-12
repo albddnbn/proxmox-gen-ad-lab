@@ -268,6 +268,8 @@ else {
         Write-Host "        * Please save the Windows iso file to the same folder that contains this script, otherwise things will fail."
         Write-Host "        * Make a note of the file name of the Windows iso file, you'll need it for the next step."
         Write-Host ""
+        Write-Host "Save the Windows.iso to " -NoNewline
+        Write-Host "$PSscriptRoot" -ForegroundColor Green
         Start-Process $PSScriptRoot\$MctExe -ArgumentList "/Eula Accept /Retail /MediaArch x64 /MediaLangCode $LangCode /MediaEdition Enterprise" -Wait
 
         If ($ConvertESD -eq "y") {
