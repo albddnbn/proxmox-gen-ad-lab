@@ -100,5 +100,10 @@ if ($ping_google) {
     iwr "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -outfile "$deploy_path\VSCode\Files\VSCodeSetup-x64.exe"
 
 }
+else {
+    Write-Host "No internet connection detected." -Foregroundcolor Red
+    Write-Host "Unfortunately, an internet connection is required to run MDT-Setup because it downloads Windows ADK/WinPE Add-on, Windows Media Creation Tool, and other installer files."
+    Read-Host "Press enter to exit."
+}
 
 
