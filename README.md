@@ -139,7 +139,7 @@ Logging in will initiate the last step, Step3.ps1.
 
 ## Coming Soon:
 
-MDT Server installation/configuration.
+Option to download Windows Server and VirtIO isos to Proxmox storage so you don't have to already have them added in there..
 
 ## License
 
