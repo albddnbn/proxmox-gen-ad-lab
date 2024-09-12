@@ -1,11 +1,11 @@
 ## Domain configuration:
 $DOMAIN_CONFIG = [PSCustomObject]@{
-    Name          = 'test3.lab'
-    Netbios       = 'test3'
-    DC_Hostname   = 'test-dc-3'
-    DC_IP         = '10.0.22.2'
-    DNS_Servers   = @('10.0.22.2', '8.8.8.8')
-    Gateway       = '10.0.22.1'
+    Name          = 'lab.edu'
+    Netbios       = 'lab'
+    DC_Hostname   = 'a-dc-01'
+    DC_IP         = '10.0.1.2'
+    DNS_Servers   = @('10.0.1.2', '8.8.8.8')
+    Gateway       = '10.0.1.1'
     Subnet_Prefix = '24'
     Password      = 'Somepass1'
 }
@@ -13,9 +13,9 @@ $DOMAIN_CONFIG = [PSCustomObject]@{
 $DHCP_SERVER_CONFIG = [PSCustomObject]@{
     IP_Addr = $DOMAIN_CONFIG.DC_IP
     Scope   = [PSCustomObject]@{
-        Name          = 'Test Lab DHCP Scope'
-        Start         = '10.0.22.10'
-        End           = '10.0.22.240'
+        Name          = 'A Domain DHCP Scope'
+        Start         = '10.0.1.10'
+        End           = '10.0.1.240'
         Gateway       = $DOMAIN_CONFIG.Gateway
         Subnet_Prefix = '255.255.255.0'
         DNS_Servers   = $DOMAIN_CONFIG.DNS_Servers
