@@ -88,4 +88,12 @@ foreach ($drive in $drives) {
 ## update the deployment share:
 Update-MDTDeploymentShare -Path "DS001:" -Verbose
 
+## populate the 7zip, chrome, and vscode ps app deployments with installer files:
+$deploy_path = "deploy"
+iwr "https://www.7-zip.org/a/7z2408-x64.msi" -outfile "$deploy_path\7zip\Files\7z2408-x64.msi"
+iwr "https://chromeenterprise.google/download/thank-you/?platform=WIN64_MSI&channel=stable&usagestats=0#" -outfile "$deploy_path\Chrome\Files\googlechromestandaloneenterprise64.msi"
+iwr "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -outfile "$deploy_path\VSCode\Files\VSCodeSetup-x64.exe"
+
+
+
 

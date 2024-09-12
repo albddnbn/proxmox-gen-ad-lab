@@ -180,10 +180,13 @@ else {
     # $MDTAdminGrp = Read-Host -Prompt "Enter the domain group to be used for MDT administrators (eg. mdt-admins)"
     ## LabAdmins
     $MDTAdminGrp = "LabAdmins"
-    $DomainUsr = Read-Host -Prompt "Enter the domain user to be used to add a PC to the domain - this user should be a member of the MDT Admins domain group (eg. mdt_admin)"
+    # $DomainUsr = Read-Host -Prompt "Enter the domain user to be used to add a PC to the domain - this user should be a member of the MDT Admins domain group (eg. mdt_admin)"
+    $DomainUsr = Get-ADGroupMember $MDTAdminGrp | Select -First 1 | Select -Exp SamAccountName
+    Write-Host "Selected $MDTAdminGrp user: " -NoNewline
+    Write-Host "$DomainUsr" -Foregroundcolor Green
     $DomainPwrd = Read-Host -Prompt "Enter the password of the user above (eg. p@ssw0rD)"
     # $DomainName = Read-Host -Prompt "Enter the domain of the user above (eg. contoso.com)"
-    $DomainName = "lab.edu"
+    $DomainName = (Get-ADDomain).DNSRoot
     # $OU = Read-Host -Prompt "Enter the full AD path for newly imaged PCs (eg. OU=PCs,DC=contoso,DC=com)"
     $OU = "OU=LabComputers,OU=homelab,DC=lab,DC=edu"
 
