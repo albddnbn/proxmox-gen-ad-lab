@@ -192,11 +192,11 @@ if ($ping_google) {
 
     # default deployment share name
     $deployshare = "C:\deployshare"
-    New-PSDrive -Name "DS001" -PSProvider MDTProvider -Root $deployshare -Description "MDT Deployment Share" -Verbose
+    # New-PSDrive -Name "DS002" -PSProvider MDTProvider -Root $deployshare -Description "MDT Deployment Share" -Verbose
 
     ## Enable MDT Monitor Service
     Enable-MDTMonitorService -EventPort 9800 -DataPort 9801 -Verbose
-    Set-ItemProperty -path DS001: -name MonitorHost -value $env:COMPUTERNAME
+    Set-ItemProperty -path DS002: -name MonitorHost -value $env:COMPUTERNAME
 
     ## find virtio drivers disk by targeting virtio msi
     ## Check for virtio 64-bit Windows driver installer MSI file by cycling through base of connected drives.
@@ -220,23 +220,23 @@ if ($ping_google) {
 
                 Write-Host "Creating VirtIO driver folder in Out-of-box drivers\WinPE folder."
                 ## create virtio driver folder:
-                New-Item -Path "DS001:\Out-of-box drivers\$makename" -ItemType Directory
-                New-Item -Path "DS001:\Out-of-box drivers\$makename\$modelname" -ItemType Directory
+                New-Item -Path "DS002:\Out-of-box drivers\$makename" -ItemType Directory
+                New-Item -Path "DS002:\Out-of-box drivers\$makename\$modelname" -ItemType Directory
 
                 Write-Host "Importing VirtIO drivers to deployment share.."
                 ## Import virtio drivers to MDT:
-                Import-MDTDriver -Path "DS001:\Out-of-box drivers\$makename\$modelname" -SourcePath $w10_folder.FullName -Verbose
+                Import-MDTDriver -Path "DS002:\Out-of-box drivers\$makename\$modelname" -SourcePath $w10_folder.FullName -Verbose
 
-                New-Item -Path "DS001:\Out-of-box drivers\WinPE\VirtIO" -ItemType Directory
+                New-Item -Path "DS002:\Out-of-box drivers\WinPE\VirtIO" -ItemType Directory
 
 
                 ## Get ALL w10 amd64 drivers from virtio iso and import into make/model folder for injection
-                Import-MDTDriver -Path "DS001:\Out-of-box drivers\WinPE\VirtIO" -SourcePath $w10_folder.FullName -Verbose
+                Import-MDTDriver -Path "DS002:\Out-of-box drivers\WinPE\VirtIO" -SourcePath $w10_folder.FullName -Verbose
 
                 $folders = Get-ChildItem -Path $drive.root -Include 'amd64' -Directory -Recurse | ? { $_.Parent.name -eq 'w10' }
 
                 $folders | % {
-                    Import-MDTDriver -Path "DS001:\Out-of-box drivers\$makename\$modelname" -SourcePath $_.fullname -verbose
+                    Import-MDTDriver -Path "DS002:\Out-of-box drivers\$makename\$modelname" -SourcePath $_.fullname -verbose
                 }
 
 
@@ -246,7 +246,7 @@ if ($ping_google) {
     }
 
     ## update the deployment share:
-    Update-MDTDeploymentShare -Path "DS001:" -Verbose
+    Update-MDTDeploymentShare -Path "DS002:" -Verbose
 
     ## populate the 7zip, chrome, and vscode ps app deployments with installer files:
     $deploy_path = "deploy"
