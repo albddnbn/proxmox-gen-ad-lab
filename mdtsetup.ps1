@@ -5,7 +5,7 @@ $mdt_setup_script = Get-ChildItem -Path "MDT-Setup" -Include "MDT-Setup.ps1" -Fi
 ## MDT installation/configuration script requires internet - check by pingining google.com
 
 
-$ping_google = Test-Connection google.coun -Count 1 -Quiet
+$ping_google = Test-Connection google.com -Count 1 -Quiet
 if ($ping_google) {
     if ($mdt_setup_script) {
         Write-Host "MDT-Setup script found. Running the script..."
