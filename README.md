@@ -139,8 +139,9 @@ Logging in will initiate the last step, Step3.ps1.
 
 ## Coming Soon:
 
-MDT Server installation/configuration.
-Improvment of User/Group creation and implentation of least privilege (esp in terms of MDT, right now there is just the one all-powerful LabAdmins group)
+- MDT Server installation/configuration.
+
+- Improvment of User/Group creation and implentation of **least privilege** (esp in terms of MDT, right now there is just the one all-powerful LabAdmins group)
 
 ## License
 
