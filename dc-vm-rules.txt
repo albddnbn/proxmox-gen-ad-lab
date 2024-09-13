@@ -32,4 +32,5 @@ IN ACCEPT -source dc/(($LAN_ALIAS$)) -dest dc/(($LAN_ALIAS$)) -p udp -dport 53 -
 IN ACCEPT -source dc/(($LAN_ALIAS$)) -dest dc/(($LAN_ALIAS$)) -p tcp -dport 53 -log nolog # DNS tcp/53
 |IN ACCEPT -p udp -log info # UDP IN LOG
 |IN DROP -log info # debugging
+IN DROP -log nolog # Default Drop (should already be effective through input policy)
 |IN ACCEPT -p tcp -log info # TCP IN LOG

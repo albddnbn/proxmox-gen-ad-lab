@@ -245,9 +245,6 @@ if ($ping_google) {
         }
     }
 
-    ## update the deployment share:
-    Update-MDTDeploymentShare -Path "DS002:" -Verbose
-
     ## populate the 7zip, chrome, and vscode ps app deployments with installer files:
     ## These downloads may take a while depending on network capabilities.
     ##
@@ -262,6 +259,28 @@ if ($ping_google) {
     iwr "https://chromeenterprise.google/download/thank-you/?platform=WIN64_MSI&channel=stable&usagestats=0#" -outfile "$deploy_path\Chrome\Files\googlechromestandaloneenterprise64.msi" -For
     iwr "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -outfile "$deploy_path\VSCode\Files\VSCodeSetup-x64.exe"
 
+    ## Import apps individually for now, may  be able to use a loop later?
+    ## 7zip
+    $7zip_source = "$deploy_path\7zip"
+    Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name '7zip' -ShortName '7zip' `
+        -CommandLine "Powershell.exe -executionPolicy bypass ./Deploy-7zip.ps1 -DeploymentType Install -DeployMode Silent" `
+        -WorkingDirectory ".\Applications\7zip\" -ApplicationSourcePath "$7zip_source" -DestinationFolder "7zip" `
+        -Comments "7zip PSADT" -Verbose
+    ## Chrome
+    $chrome_source = "$deploy_path\chrome"
+    Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'chrome' -ShortName 'chrome' `
+        -CommandLine "Powershell.exe -executionpolicy bypass ./Deploy-Chrome.ps1 -Deploymenttype Install -Deploymode Silent" `
+        -WorkingDirectory ".\Applications\chrome\" -ApplicationSourcePath "$chrome_source" -DestinationFolder "chrome" `
+        -Comments "Chrome PSADT" -Verbose
+    ## VSCode
+    $vscode_source = "$deploy_path\VSCode"
+    Import-MDTApplication -path "DSAppManager:\Applications" -enable $true -reboot $false -hide $false -Name 'VSCode' -ShortName 'VSCode' `
+        -CommandLine "Powershell.exe -ExecutionPolicy Bypass ./Deploy-VSCode.ps1 -DeploymentType Install -DeployMode Silent" `
+        -WorkingDirectory ".\Applications\VSCode" -ApplicationSourcePath "$vscode_source" -DestinationFolder "VSCode" `
+        -Comments 'VS Code PSADT' -Verbose
+
+    ## update the deployment share:
+    Update-MDTDeploymentShare -Path "DS002:" -Verbose
 }
 else {
     Write-Host "No internet connection detected." -Foregroundcolor Red
