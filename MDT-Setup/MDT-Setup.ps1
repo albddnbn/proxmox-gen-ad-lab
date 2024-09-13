@@ -263,7 +263,8 @@ else {
 
         Write-Host "The Media Creation tool requires user interaction."
         Write-Host ""
-        Write-Host "        * Use this key to download your Windows iso: NPPR9-FWDCX-D2C8J-H872K-2YT43"
+        Write-Host "        * Use this key to download your Windows iso: " -Nonewline
+        Write-Host "NPPR9-FWDCX-D2C8J-H872K-2YT43" -Foregroundcolor Yellow
         Write-Host "        * Choose 'Create installation media' and then the 'ISO file' option to download an iso file."
         Write-Host "        * Please save the Windows iso file to the same folder that contains this script, otherwise things will fail."
         Write-Host "        * Make a note of the file name of the Windows iso file, you'll need it for the next step."

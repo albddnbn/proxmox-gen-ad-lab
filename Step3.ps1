@@ -192,7 +192,7 @@ if ($ping_google) {
 
     # default deployment share name
     $deployshare = "C:\deployshare"
-    # New-PSDrive -Name "DS002" -PSProvider MDTProvider -Root $deployshare -Description "MDT Deployment Share" -Verbose
+    New-PSDrive -Name "DS002" -PSProvider MDTProvider -Root $deployshare -Description "MDT Deployment Share" -Verbose
 
     ## Enable MDT Monitor Service
     Enable-MDTMonitorService -EventPort 9800 -DataPort 9801 -Verbose
