@@ -274,7 +274,7 @@ if ($ping_google) {
         -Comments "Chrome PSADT" -Verbose
     ## VSCode
     $vscode_source = "$deploy_path\VSCode"
-    Import-MDTApplication -path "DSAppManager:\Applications" -enable $true -reboot $false -hide $false -Name 'VSCode' -ShortName 'VSCode' `
+    Import-MDTApplication -path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'VSCode' -ShortName 'VSCode' `
         -CommandLine "Powershell.exe -ExecutionPolicy Bypass ./Deploy-VSCode.ps1 -DeploymentType Install -DeployMode Silent" `
         -WorkingDirectory ".\Applications\VSCode" -ApplicationSourcePath "$vscode_source" -DestinationFolder "VSCode" `
         -Comments 'VS Code PSADT' -Verbose
