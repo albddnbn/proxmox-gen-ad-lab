@@ -215,8 +215,8 @@ if ($ping_google) {
             else {
 
                 ## get model name for folder:
-                # $modelname = Get-Ciminstance -class win32_computersystem | select -exp model
-                # $makename = Get-Ciminstance -class win32_computersystem | select -exp manufacturer
+                $modelname = Get-Ciminstance -class win32_computersystem | select -exp model
+                $makename = Get-Ciminstance -class win32_computersystem | select -exp manufacturer
 
                 Write-Host "Creating VirtIO driver folder in Out-of-box drivers\WinPE folder."
                 ## create virtio driver folder:
