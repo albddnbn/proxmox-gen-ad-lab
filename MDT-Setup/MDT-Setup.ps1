@@ -625,6 +625,11 @@ else {
         $XMLContent = $XMLContent -Replace '<Boot.x64.SelectionProfile>All Drivers and Packages</Boot.x64.SelectionProfile>', '<Boot.x64.SelectionProfile>WinPE</Boot.x64.SelectionProfile>'
         $XMLContent | Out-File "$MdtDepShare\Control\Settings.xml"
 
+        ## Adding in - enabling of install applications phase?
+        $TaskSequenceXML = Get-Content "$MdtDepShare\Control\W10-22H2\ts.xml"
+        $TaskSequenceXML = $TaskSequenceXML -Replace '<step type="BDD_InstallApplication" name="Install Applications" disable="true" continueOnError="false" successCodeList="0 3010" description="" startIn="">', '    <step type="BDD_InstallApplication" name="Install Applications" disable="false" continueOnError="false" successCodeList="0 3010" description="" startIn="">'
+        $TaskSequenceXML | Out-File "$MdtDepShare\Control\W10-22H2\ts.xml"
+        
         ## Update Deploy share to generate boot media
         Write-Host "Updating Deploy share and generating boot media"
         Update-MDTDeploymentShare -path "DS002:" -Force | Out-Null
