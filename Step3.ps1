@@ -157,7 +157,12 @@ Powershell.exe -ExecutionPolicy Bypass "$($fileshare_creation_script.fullname)"
 ## MDT Setup:
 ## Thank you, Digressive/MDT-Setup for this awesome MDT setup script!
 ## Source: https://github.com/Digressive/MDT-Setup
-$mdt_setup_script = Get-ChildItem -Path "MDT-Setup" -Include "MDT-Setup.ps1" -File -Recurse -ErrorAction SilentlyContinue
+$mdt_setup_script = Get-ChildItem -Path "MDT-Setup" -Include "MDT-Setup.ps1" -File -Recurse -ErrorAction Stop
+
+## MDT Application Bundle Management Script - Thank you!
+## Source: https://github.com/damienvanrobaeys/Manage_MDT_Application_Bundle
+$manage_mdt_app_bundles = Get-ChildItem -Path "MDT-Setup" -Include "Manage_Application_Bundle.ps1" -File -ErrorAction Stop
+. "$($manage_mdt_app_bundles.fullname)"
 
 ## MDT installation/configuration script requires internet - check by pingining google.com
 $ping_google = Test-Connection google.com -Count 1 -Quiet
@@ -260,24 +265,59 @@ if ($ping_google) {
     iwr "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -outfile "$deploy_path\VSCode\Files\VSCodeSetup-x64.exe"
 
     ## Import apps individually for now, may  be able to use a loop later?
+    @('7zip', 'Chrome', 'VSCode') | % {
+        $app_source = "$deploy_path\$_"
+        Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name "$_" -ShortName "$_" `
+            -CommandLine "Powershell.exe -executionPolicy bypass ./Deploy-$_.ps1 -DeploymentType Install -DeployMode Silent" `
+            -WorkingDirectory ".\Applications\$_" -ApplicationSourcePath "$app_source" -DestinationFolder "$_" `
+            -Comments "$_ PSADT" -Verbose
+    }
     ## 7zip
-    $7zip_source = "$deploy_path\7zip"
-    Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name '7zip' -ShortName '7zip' `
-        -CommandLine "Powershell.exe -executionPolicy bypass ./Deploy-7zip.ps1 -DeploymentType Install -DeployMode Silent" `
-        -WorkingDirectory ".\Applications\7zip\" -ApplicationSourcePath "$7zip_source" -DestinationFolder "7zip" `
-        -Comments "7zip PSADT" -Verbose
-    ## Chrome
-    $chrome_source = "$deploy_path\chrome"
-    Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'chrome' -ShortName 'chrome' `
-        -CommandLine "Powershell.exe -executionpolicy bypass ./Deploy-Chrome.ps1 -Deploymenttype Install -Deploymode Silent" `
-        -WorkingDirectory ".\Applications\chrome\" -ApplicationSourcePath "$chrome_source" -DestinationFolder "chrome" `
-        -Comments "Chrome PSADT" -Verbose
-    ## VSCode
-    $vscode_source = "$deploy_path\VSCode"
-    Import-MDTApplication -path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'VSCode' -ShortName 'VSCode' `
-        -CommandLine "Powershell.exe -ExecutionPolicy Bypass ./Deploy-VSCode.ps1 -DeploymentType Install -DeployMode Silent" `
-        -WorkingDirectory ".\Applications\VSCode" -ApplicationSourcePath "$vscode_source" -DestinationFolder "VSCode" `
-        -Comments 'VS Code PSADT' -Verbose
+    # $7zip_source = "$deploy_path\7zip"
+    # Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name '7zip' -ShortName '7zip' `
+    #     -CommandLine "Powershell.exe -executionPolicy bypass ./Deploy-7zip.ps1 -DeploymentType Install -DeployMode Silent" `
+    #     -WorkingDirectory ".\Applications\7zip\" -ApplicationSourcePath "$7zip_source" -DestinationFolder "7zip" `
+    #     -Comments "7zip PSADT" -Verbose
+    # ## Chrome
+    # $chrome_source = "$deploy_path\chrome"
+    # Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'chrome' -ShortName 'chrome' `
+    #     -CommandLine "Powershell.exe -executionpolicy bypass ./Deploy-Chrome.ps1 -Deploymenttype Install -Deploymode Silent" `
+    #     -WorkingDirectory ".\Applications\chrome\" -ApplicationSourcePath "$chrome_source" -DestinationFolder "chrome" `
+    #     -Comments "Chrome PSADT" -Verbose
+    # ## VSCode
+    # $vscode_source = "$deploy_path\VSCode"
+    # Import-MDTApplication -path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'VSCode' -ShortName 'VSCode' `
+    #     -CommandLine "Powershell.exe -ExecutionPolicy Bypass ./Deploy-VSCode.ps1 -DeploymentType Install -DeployMode Silent" `
+    #     -WorkingDirectory ".\Applications\VSCode" -ApplicationSourcePath "$vscode_source" -DestinationFolder "VSCode" `
+    #     -Comments 'VS Code PSADT' -Verbose
+
+
+
+    ## This would create an Application Bundle containing the three apps. I'm going to try a different method to force them to be installed during deployment first.    
+    $main_app_bundle_name = "MainApps"
+    Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name "$main_app_bundle_name" -ShortName "BasicApps" `
+        -Bundle -Comments "Basic Application Bundle"
+
+    ## Add applications to bundle:
+    @('7zip', 'chrome', 'vscode') | % {
+        Add-Dependency -DeploymentShare "$deploy_share" -App_Name $_ -Bundle_Name "$main_app_bundle_name"
+    }
+
+    ## Get Application Bundle GUID from Applications.xml
+    $apps_xml = [xml]$(Get-Content "$deploy_share\Control\Applications.xml")
+
+    $mainApps_bundle_guid = $apps_xml.applications.applications | ? { $_.name -eq "$main_app_bundle_name" } | select -exp guid
+
+    ## Edit the Install Applications step of Task Sequence again to include the new bundle.
+    $task_sequence_xml = [xml]$(Get-Content "$deploy_share\Control\W10-22H2\ts.xml")
+
+    ## Get the Install Applications step and replace the defaultVarList with the new bundle stuff.
+    # $task_sequence_xml.
+
+
+
+
+
 
     ## update the deployment share:
     Update-MDTDeploymentShare -Path "DS002:" -Verbose
