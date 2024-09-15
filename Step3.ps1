@@ -308,11 +308,16 @@ if ($ping_google) {
 
     $mainApps_bundle_guid = $apps_xml.applications.applications | ? { $_.name -eq "$main_app_bundle_name" } | select -exp guid
 
-    ## Edit the Install Applications step of Task Sequence again to include the new bundle.
-    $task_sequence_xml = [xml]$(Get-Content "$deploy_share\Control\W10-22H2\ts.xml")
+    ## Edit Task Sequence XML to add in the bundle GUID.
+    $task_sequence_xml = [System.Xml.XmlDocument]::new()
+    $task_sequence_xml.Load("$deploy_share\Control\W10-22H2\ts.xml")
+    $installapps = $task_sequence_xml.sequence.group.step | ? { $_.name -eq 'install applications' }
+    $installapps.defaultvarlist.variable | % {
+        if ($_.name -eq 'applicationguid') {
+            $_.InnerText = $mainApps_bundle_guid
+        }
+    }
 
-    ## Get the Install Applications step and replace the defaultVarList with the new bundle stuff.
-    # $task_sequence_xml.
 
 
 
