@@ -319,6 +319,10 @@ if ($ping_google) {
         }
     }
 
+
+    ## Save xml docs:
+    $task_sequence_xml.Save("$deployshare\Control\W10-22H2\ts.xml")
+
     ## update the deployment share:
     Update-MDTDeploymentShare -Path "DS002:" -Verbose
 }
