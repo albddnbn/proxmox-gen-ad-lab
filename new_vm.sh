@@ -24,6 +24,13 @@
 ## Sourcing functions file, defining associative arrays, ensuring values are set, prompting user when necessary.
 ########################################################################################################################
 
+## URLs for Windows Server ISO and VirtIO Drivers iso..
+## DL times may be lengthy
+windows_server_iso_url="https://go.microsoft.com/fwlink/p/?LinkID=2195280&clcid=0x409&culture=en-us&country=US"
+virtio_drivers_iso="https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso"
+## --> after virtio/win proxmox storage chosen, IF virtio iso does not exist on storage, DOWNLOAD.
+## --> Windows iso -> going to be another story, way bigger in size.
+
 ## Source functions from functions dir.
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 

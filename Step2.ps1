@@ -52,4 +52,7 @@ Install-ADDSForest -DomainName $DOMAIN_NAME -DomainMode WinThreshold -ForestMode
 
 ## System should reboot automatically here?
 read-host "if system hasn't rebooted, press enter to reboot.."
-Restart-Computer -Force
+Restart-Computer
+#Restart-Computer -Force
+#### Saw a bit of red here After I press enter - 9/12/2024.
+#### Removed -Force from Restart-Computer as a test.
