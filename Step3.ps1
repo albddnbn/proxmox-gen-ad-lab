@@ -309,6 +309,7 @@ if ($ping_google) {
     $mainApps_bundle_guid = $apps_xml.applications.applications | ? { $_.name -eq "$main_app_bundle_name" } | select -exp guid
 
     ## Edit Task Sequence XML to add in the bundle GUID.
+    ## Resource: https://www.sharepointdiary.com/2020/11/xml-manipulation-in-powershell-comprehensive-guide.html#h-changing-xml-values-with-powershell
     $task_sequence_xml = [System.Xml.XmlDocument]::new()
     $task_sequence_xml.Load("$deploy_share\Control\W10-22H2\ts.xml")
     $installapps = $task_sequence_xml.sequence.group.step | ? { $_.name -eq 'install applications' }
@@ -317,12 +318,6 @@ if ($ping_google) {
             $_.InnerText = $mainApps_bundle_guid
         }
     }
-
-
-
-
-
-
 
     ## update the deployment share:
     Update-MDTDeploymentShare -Path "DS002:" -Verbose
