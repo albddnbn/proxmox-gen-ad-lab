@@ -161,7 +161,7 @@ $mdt_setup_script = Get-ChildItem -Path "MDT-Setup" -Include "MDT-Setup.ps1" -Fi
 
 ## MDT Application Bundle Management Script - Thank you!
 ## Source: https://github.com/damienvanrobaeys/Manage_MDT_Application_Bundle
-$manage_mdt_app_bundles = Get-ChildItem -Path "MDT-Setup" -Include "Manage_Application_Bundle.ps1" -File -ErrorAction Stop
+$manage_mdt_app_bundles = Get-ChildItem -Path "MDT-Setup" -Filter "Manage_Application_Bundle.ps1" -File -ErrorAction Stop
 . "$($manage_mdt_app_bundles.fullname)"
 
 ## MDT installation/configuration script requires internet - check by pingining google.com
