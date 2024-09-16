@@ -261,7 +261,7 @@ if ($ping_google) {
         }
     }
     iwr "https://www.7-zip.org/a/7z2408-x64.msi" -outfile "$deploy_path\7zip\Files\7z2408-x64.msi"
-    iwr "https://chromeenterprise.google/download/thank-you/?platform=WIN64_MSI&channel=stable&usagestats=0#" -outfile "$deploy_path\Chrome\Files\googlechromestandaloneenterprise64.msi" -For
+    iwr "https://chromeenterprise.google/download/thank-you/?platform=WIN64_MSI&channel=stable&usagestats=0#" -outfile "$deploy_path\Chrome\Files\googlechromestandaloneenterprise64.msi"
     iwr "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -outfile "$deploy_path\VSCode\Files\VSCodeSetup-x64.exe"
 
     ## Import apps individually for now, may  be able to use a loop later?
@@ -300,18 +300,18 @@ if ($ping_google) {
 
     ## Add applications to bundle:
     @('7zip', 'chrome', 'vscode') | % {
-        Add-Dependency -DeploymentShare "$deploy_share" -App_Name $_ -Bundle_Name "$main_app_bundle_name"
+        Add-Dependency -DeploymentShare "$deployshare" -App_Name $_ -Bundle_Name "$main_app_bundle_name"
     }
 
     ## Get Application Bundle GUID from Applications.xml
-    $apps_xml = [xml]$(Get-Content "$deploy_share\Control\Applications.xml")
+    $apps_xml = [xml]$(Get-Content "$deployshare\Control\Applications.xml")
 
     $mainApps_bundle_guid = $apps_xml.applications.applications | ? { $_.name -eq "$main_app_bundle_name" } | select -exp guid
 
     ## Edit Task Sequence XML to add in the bundle GUID.
     ## Resource: https://www.sharepointdiary.com/2020/11/xml-manipulation-in-powershell-comprehensive-guide.html#h-changing-xml-values-with-powershell
     $task_sequence_xml = [System.Xml.XmlDocument]::new()
-    $task_sequence_xml.Load("$deploy_share\Control\W10-22H2\ts.xml")
+    $task_sequence_xml.Load("$deployshare\Control\W10-22H2\ts.xml")
     $installapps = $task_sequence_xml.sequence.group.step | ? { $_.name -eq 'install applications' }
     $installapps.defaultvarlist.variable | % {
         if ($_.name -eq 'applicationguid') {
