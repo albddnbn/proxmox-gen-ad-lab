@@ -76,6 +76,8 @@ You can configure Active Directory domain-related settings in the config.ps1 fil
 - Installs and configures DHCP Server with single DHCP scope
 - Creates AD DS OUs, Groups, Users
 - Creates file shares for roaming profiles/folder redirection and configures permissions
+- Installs/configures MDT Server and dependencies
+- Imports VirtIO Drivers using virtio iso
 
 ## Example
 
@@ -139,7 +141,9 @@ Logging in will initiate the last step, Step3.ps1.
 
 ## Coming Soon:
 
-Option to download Windows Server and VirtIO isos to Proxmox storage so you don't have to already have them added in there..
+- Improvement of MDT configuration - task sequence/applications/etc.
+- Installation/Configuration of WDS
+- Installation/Configuration of WSUS
 
 ## License
 
