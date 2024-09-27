@@ -301,7 +301,7 @@ if ($ping_google) {
 
     ## update the deployment share:
     Update-MDTDeploymentShare -Path "DS002:" -Verbose
-    
+
     ## Add applications to bundle:
     @('7zip', 'chrome', 'vscode') | % {
         Add-Dependency -DeploymentShare "$deployshare" -App_Name $_ -Bundle_Name "$main_app_bundle_name"
@@ -310,7 +310,7 @@ if ($ping_google) {
     ## Get Application Bundle GUID from Applications.xml
     $apps_xml = [xml]$(Get-Content "$deployshare\Control\Applications.xml")
 
-    $mainApps_bundle_guid = $apps_xml.applications.applications | ? { $_.name -eq "$main_app_bundle_name" } | select -exp guid
+    $mainApps_bundle_guid = $apps_xml.applications.application | ? { $_.name -eq "$main_app_bundle_name" } | select -exp guid
 
     ## Edit Task Sequence XML to add in the bundle GUID.
     ## Resource: https://www.sharepointdiary.com/2020/11/xml-manipulation-in-powershell-comprehensive-guide.html#h-changing-xml-values-with-powershell
