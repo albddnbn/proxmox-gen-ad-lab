@@ -79,7 +79,7 @@ Install-WindowsFeature -Name DHCP -IncludeManagementTools
 
 Restart-service dhcpserver
 
-Add-DHCPServerInDC -DnsName "$DC_HOSTNAME.$DOMAIN_NAME" -IPAddress $DHCP_IP_ADDR
+Add-DHCPServerInDC -DnsName "$DC_HOSTNAME" -IPAddress $DHCP_IP_ADDR
 
 # DHCP Scope
 Add-DHCPServerv4Scope -Name "$DHCP_SCOPE_NAME" -StartRange "$DHCP_START_RANGE" `
@@ -320,7 +320,6 @@ if ($ping_google) {
             $_.InnerText = $mainApps_bundle_guid
         }
     }
-
 
     ## Save xml docs:
     $task_sequence_xml.Save("$deployshare\Control\W10-22H2\ts.xml")
