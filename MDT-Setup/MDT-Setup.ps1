@@ -271,6 +271,8 @@ else {
         Write-Host ""
         Write-Host "Save the Windows.iso to " -NoNewline
         Write-Host "$PSscriptRoot" -ForegroundColor Green
+        "NPPR9-FWDCX-D2C8J-H872K-2YT43" | clip
+        Write-Host "The Windows 10 key has been copied to your clipboard." -Foregroundcolor Yellow
         Start-Process $PSScriptRoot\$MctExe -ArgumentList "/Eula Accept /Retail /MediaArch x64 /MediaLangCode $LangCode /MediaEdition Enterprise" -Wait
 
         If ($ConvertESD -eq "y") {

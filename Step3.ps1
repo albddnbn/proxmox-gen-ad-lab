@@ -298,8 +298,10 @@ if ($ping_google) {
     $main_app_bundle_name = "MainApps"
     Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name "$main_app_bundle_name" -ShortName "BasicApps" `
         -Bundle -Comments "Basic Application Bundle"
+
     ## update the deployment share:
     Update-MDTDeploymentShare -Path "DS002:" -Verbose
+    
     ## Add applications to bundle:
     @('7zip', 'chrome', 'vscode') | % {
         Add-Dependency -DeploymentShare "$deployshare" -App_Name $_ -Bundle_Name "$main_app_bundle_name"
