@@ -292,6 +292,8 @@ if ($ping_google) {
     #     -Comments 'VS Code PSADT' -Verbose
 
 
+    ## update the deployment share:
+    Update-MDTDeploymentShare -Path "DS002:" -Verbose
 
     ## This would create an Application Bundle containing the three apps. I'm going to try a different method to force them to be installed during deployment first.    
     $main_app_bundle_name = "MainApps"
