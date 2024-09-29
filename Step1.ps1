@@ -57,6 +57,15 @@ foreach ($drive in $drives) {
         Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $($file.FullName) /qn /norestart" -Wait
         break
     }
+
+    ## Install QEMU Guest agent using msi in virtio iso:
+    $qemu_installer = Get-ChildItem -Path $(Join-path $drive.Root 'guest-agent') -Filter "qemu-ga-x86_64.msi" -File -ErrorAction SilentlyContinue
+    # If/once virtio msi is found - attempt to install silently and discontinue the searching of drives.
+    if ($qemu_installer) {
+        Write-Output "Found file: $($qemu_installer.FullName), running installation."
+        Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $($qemu_installer.FullName) /qn /norestart" -Wait
+        break
+    }
 }
 
 ## If no network adapter is found, even after virtio driver installation - no point in continuing with AD DS setup.
