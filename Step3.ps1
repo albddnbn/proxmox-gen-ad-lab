@@ -261,8 +261,11 @@ if ($ping_google) {
     #     }
     # }
     # iwr "https://www.7-zip.org/a/7z2408-x64.msi" -outfile "$deploy_path\7zip\Files\7z2408-x64.msi"
-    # iwr "https://chromeenterprise.google/download/thank-you/?platform=WIN64_MSI&channel=stable&usagestats=0#" -outfile "$deploy_path\Chrome\Files\googlechromestandaloneenterprise64.msi"
+    iwr "https://chromeenterprise.google/download/thank-you/?platform=WIN64_MSI&channel=stable&usagestats=0#" -outfile "$deploy_path\Chrome\Files\googlechromestandaloneenterprise64.msi"
     # iwr "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -outfile "$deploy_path\VSCode\Files\VSCodeSetup-x64.exe"
+
+    ## Add few second pause before importing applications to ensure files are downloaded.
+    Start-Sleep -Seconds 5
 
     ## Import apps individually for now, may  be able to use a loop later?
     @('7zip', 'Chrome', 'VSCode') | % {
