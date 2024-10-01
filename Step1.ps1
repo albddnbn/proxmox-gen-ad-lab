@@ -101,6 +101,6 @@ $step2_filepath = (get-item ./step2.ps1).fullname
 
 
 ## Until the kinks are worked out of the scheduled task method, or better method found:
-Write-Host "After rebooting, run the step2.ps1 script." -Foregroundcolor Yellow
+Write-Host "After the machine reboots, log back in to start Step2.ps1 as a scheduled task." -Foregroundcolor Yellow
 Read-Host "Press enter to reboot and apply changes." 
 shutdown /r /t 0
