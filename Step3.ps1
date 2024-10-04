@@ -13,13 +13,17 @@ param(
     [Parameter(Mandatory = $false)]
     [string]$fileshares_ps1_file = "create_fileshares.ps1"
 )
+#
+$BaseDirectory = $PSScriptRoot
+
+
 ## Set Window Title to Step
 $host.ui.RawUI.WindowTitle = "Step 3"
 
 ## Make sure user creation script can be accessed:
 $user_creation_script = Get-ChildItem -Path './config' -Filter "$user_creation_ps1_file" -File -ErrorAction Stop
 $fileshare_creation_script = Get-ChildItem -Path './config' -Filter "$fileshares_ps1_file" -File -ErrorAction Stop
-$run_mdt_setup = Get-ChildItem -Path '.' -Filter "mdtsetup.ps1" -File -ErrorAction SilentlyContinue
+# $run_mdt_setup = Get-ChildItem -Path '.' -Filter "mdtsetup.ps1" -File -ErrorAction SilentlyContinue
 
 ## Dot source configuration variables:
 try {
@@ -254,18 +258,18 @@ if ($ping_google) {
     ## These downloads may take a while depending on network capabilities.
     ##
     $deploy_path = "deploy"
-    # @('7zip', 'chrome', 'VSCode') | % {
-    #     $folder = "$deploy_path\$_\Files"
-    #     if (-not (Test-Path $folder -PathType Container -ErrorAction SilentlyContinue)) {
-    #         New-Item -Path $folder -ItemType Directory | Out-null
-    #     }
-    # }
+    @('7zip', 'chrome', 'VSCode') | % {
+        $folder = "$deploy_path\$_\Files"
+        if (-not (Test-Path $folder -PathType Container -ErrorAction SilentlyContinue)) {
+            New-Item -Path $folder -ItemType Directory | Out-null
+        }
+    }
     # iwr "https://www.7-zip.org/a/7z2408-x64.msi" -outfile "$deploy_path\7zip\Files\7z2408-x64.msi"
-    iwr "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi" -outfile "$deploy_path\Chrome\Files\"
+    # iwr "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi" -outfile "$(Join-Path $BaseDirectory "$deploy_path\Chrome\Files\googlechromestandaloneenterprise64.msi")"    
     # iwr "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -outfile "$deploy_path\VSCode\Files\VSCodeSetup-x64.exe"
 
     ## Add few second pause before importing applications to ensure files are downloaded.
-    Start-Sleep -Seconds 5
+    # Start-Sleep -Seconds 5
 
     ## Import apps individually for now, may  be able to use a loop later?
     @('7zip', 'Chrome', 'VSCode') | % {

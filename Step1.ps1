@@ -100,6 +100,16 @@ $step2_filepath = (get-item ./step2.ps1).fullname
 . ./create_scheduled_task.ps1 -task_name 'step2_genadlab' -task_file_path "$step2_filepath"
 
 
+## This is kinda wierd, but attempting download of google chrome msi here in step 1 so it can be used with mdt setup
+## source for alternate dl method: https://stackoverflow.com/questions/28682642/powershell-why-is-using-invoke-webrequest-much-slower-than-a-browser-download
+# iwr "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi" -outfile "deploy/chrome/Files/googlechromestandaloneenterprise64.msi" -progresspreference 'silentlyContinue'
+$google_out_path = Join-Path $PSSCRIPTROOT "deploy/chrome/Files/googlechromestandaloneenterprise64.msi"
+$wc = new-object net.webclient
+$wc.downloadfile("https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi", "$google_out_path")
+
+
+Start-Sleep -Seconds 5
+
 ## Until the kinks are worked out of the scheduled task method, or better method found:
 Write-Host "After the machine reboots, log back in to start Step2.ps1 as a scheduled task." -Foregroundcolor Yellow
 Read-Host "Press enter to reboot and apply changes." 
