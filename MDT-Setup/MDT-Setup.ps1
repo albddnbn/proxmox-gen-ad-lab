@@ -567,12 +567,9 @@ else {
         # Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "OSDComputerName=%TaskSequenceID%"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "[Init]"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value 'ComputerMacAddr=#RIGHT(""%TaskSequenceID%"",5)#'
-        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "[Virtual Machine]"
 
         ## Get Domain Letter, to be used in dynamic computer name generation (customsettings.ini)
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "OSDComputerName=$DomainPrefix-pc-%ComputerMacAddr%"
-        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "[Virtual Machine]"
-        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "OSDComputerName=%TaskSequenceID%"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value ""
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "[Default]"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "_SMSTSORGNAME=Deploy"
