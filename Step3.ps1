@@ -172,8 +172,13 @@ $manage_mdt_app_bundles = Get-ChildItem -Path "MDT-Setup" -Filter "Manage_Applic
 $ping_google = Test-Connection google.com -Count 1 -Quiet
 if ($ping_google) {
     if ($mdt_setup_script) {
-        Write-Host "MDT-Setup script found. Running the script..."
-        Powershell.exe -ExecutionPolicy Bypass -File "$($mdt_setup_script.fullname)"
+        
+        ## Domain Letter / Prefix is created by separating the DC hostname at each -, and selecting index 0.
+        $domain_letter = ($DC_HOSTNAME -Split '-')[0]
+        Write-Host "MDT-Setup script found. Running the script using: " -NoNewline
+        Write-Host "$domain_letter" -foregroundcolor yellow -NoNewline
+        Write-Host " as the domain computer / hostname prefix."
+        Powershell.exe -ExecutionPolicy Bypass -Command "&$($mdt_setup_script.fullname) $domain_letter"
     }
     else {
         Write-Host "MDT-Setup script not found. Exiting..."
@@ -206,6 +211,9 @@ if ($ping_google) {
     ## Enable MDT Monitor Service
     Enable-MDTMonitorService -EventPort 9800 -DataPort 9801 -Verbose
     Set-ItemProperty -path DS002: -name MonitorHost -value $env:COMPUTERNAME
+    ## Unsure if this is necessary:
+    # Set-ItemProperty -path DS002: -name MonitorEventPort -value 9800
+    # Set-ItemProperty -path DS002: -name MonitorDataPort -value 9801
 
     ## find virtio drivers disk by targeting virtio msi
     ## Check for virtio 64-bit Windows driver installer MSI file by cycling through base of connected drives.

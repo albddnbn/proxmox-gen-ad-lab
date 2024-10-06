@@ -40,6 +40,7 @@
 ## Set up command line switches.
 [CmdletBinding()]
 Param(
+    [string]$DomainPrefix,
     [switch]$Help,
     [switch]$UpdateCheck)
 
@@ -559,9 +560,17 @@ else {
         Rename-Item -Path $MdtDepShare\Control\CustomSettings.ini -NewName CustomSettings-OgBackup.ini
         Write-Host "Creating custom CustomSettings.ini"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "[Settings]"
-        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "Priority=Model, Default, SetOSD"
-        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "Properties=OSDPrefix"
+        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "Priority=Model, Init, Default, SetOSD"
+        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "Properties=ComputerMacAddr,OSDPrefix"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value ""
+        # Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "[Virtual Machine]"
+        # Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "OSDComputerName=%TaskSequenceID%"
+        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "[Init]"
+        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value 'ComputerMacAddr=#RIGHT(""%TaskSequenceID%"",5)#'
+        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "[Virtual Machine]"
+
+        ## Get Domain Letter, to be used in dynamic computer name generation (customsettings.ini)
+        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "OSDComputerName=$DomainPrefix-pc-%ComputerMacAddr%"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "[Virtual Machine]"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "OSDComputerName=%TaskSequenceID%"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value ""
@@ -572,6 +581,10 @@ else {
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "; MDT deployment settings"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "OSInstall=Y"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "SkipCapture=YES"
+        ## Skip Computer Name Prompt - Note there is a slight possibility of a name clash with virtual machine mac / last 4
+        ## Proxmox Qemu virtual machines did not seem to have a serial number easily available to work with!
+        Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "SkipComputerName=YES"
+
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "SkipAdminPassword=YES"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "SkipProductKey=YES"
         Add-Content -Path $MdtDepShare\Control\CustomSettings.ini -Value "SkipComputerBackup=YES"
