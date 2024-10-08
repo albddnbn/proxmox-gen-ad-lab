@@ -103,6 +103,14 @@ $step2_filepath = (get-item ./step2.ps1).fullname
 ## This is kinda wierd, but attempting download of google chrome msi here in step 1 so it can be used with mdt setup
 ## source for alternate dl method: https://stackoverflow.com/questions/28682642/powershell-why-is-using-invoke-webrequest-much-slower-than-a-browser-download
 # iwr "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi" -outfile "deploy/chrome/Files/googlechromestandaloneenterprise64.msi" -progresspreference 'silentlyContinue'
+$deploy_path = "deploy"
+@('7zip', 'chrome', 'VSCode') | % {
+    $folder = "$deploy_path\$_\Files"
+    if (-not (Test-Path $folder -PathType Container -ErrorAction SilentlyContinue)) {
+        New-Item -Path $folder -ItemType Directory | Out-null
+    }
+}
+
 $google_out_path = Join-Path $PSSCRIPTROOT "deploy/chrome/Files/googlechromestandaloneenterprise64.msi"
 $wc = new-object net.webclient
 $wc.downloadfile("https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi", "$google_out_path")
