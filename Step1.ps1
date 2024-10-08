@@ -57,6 +57,15 @@ foreach ($drive in $drives) {
         Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $($file.FullName) /qn /norestart" -Wait
         break
     }
+
+    ## Install QEMU Guest agent using msi in virtio iso:
+    $qemu_installer = Get-ChildItem -Path $(Join-path $drive.Root 'guest-agent') -Filter "qemu-ga-x86_64.msi" -File -ErrorAction SilentlyContinue
+    # If/once virtio msi is found - attempt to install silently and discontinue the searching of drives.
+    if ($qemu_installer) {
+        Write-Output "Found file: $($qemu_installer.FullName), running installation."
+        Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $($qemu_installer.FullName) /qn /norestart" -Wait
+        break
+    }
 }
 
 ## If no network adapter is found, even after virtio driver installation - no point in continuing with AD DS setup.
@@ -91,7 +100,25 @@ $step2_filepath = (get-item ./step2.ps1).fullname
 . ./create_scheduled_task.ps1 -task_name 'step2_genadlab' -task_file_path "$step2_filepath"
 
 
+## This is kinda wierd, but attempting download of google chrome msi here in step 1 so it can be used with mdt setup
+## source for alternate dl method: https://stackoverflow.com/questions/28682642/powershell-why-is-using-invoke-webrequest-much-slower-than-a-browser-download
+# iwr "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi" -outfile "deploy/chrome/Files/googlechromestandaloneenterprise64.msi" -progresspreference 'silentlyContinue'
+$deploy_path = "deploy"
+@('7zip', 'chrome', 'VSCode') | % {
+    $folder = "$deploy_path\$_\Files"
+    if (-not (Test-Path $folder -PathType Container -ErrorAction SilentlyContinue)) {
+        New-Item -Path $folder -ItemType Directory | Out-null
+    }
+}
+
+$google_out_path = Join-Path $PSSCRIPTROOT "deploy/chrome/Files/googlechromestandaloneenterprise64.msi"
+$wc = new-object net.webclient
+$wc.downloadfile("https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi", "$google_out_path")
+
+
+Start-Sleep -Seconds 5
+
 ## Until the kinks are worked out of the scheduled task method, or better method found:
-Write-Host "After rebooting, run the step2.ps1 script." -Foregroundcolor Yellow
+Write-Host "After the machine reboots, log back in to start Step2.ps1 as a scheduled task." -Foregroundcolor Yellow
 Read-Host "Press enter to reboot and apply changes." 
 shutdown /r /t 0

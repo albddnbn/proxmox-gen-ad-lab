@@ -13,13 +13,17 @@ param(
     [Parameter(Mandatory = $false)]
     [string]$fileshares_ps1_file = "create_fileshares.ps1"
 )
+#
+$BaseDirectory = $PSScriptRoot
+
+
 ## Set Window Title to Step
 $host.ui.RawUI.WindowTitle = "Step 3"
 
 ## Make sure user creation script can be accessed:
 $user_creation_script = Get-ChildItem -Path './config' -Filter "$user_creation_ps1_file" -File -ErrorAction Stop
 $fileshare_creation_script = Get-ChildItem -Path './config' -Filter "$fileshares_ps1_file" -File -ErrorAction Stop
-$run_mdt_setup = Get-ChildItem -Path '.' -Filter "mdtsetup.ps1" -File -ErrorAction SilentlyContinue
+# $run_mdt_setup = Get-ChildItem -Path '.' -Filter "mdtsetup.ps1" -File -ErrorAction SilentlyContinue
 
 ## Dot source configuration variables:
 try {
@@ -79,7 +83,7 @@ Install-WindowsFeature -Name DHCP -IncludeManagementTools
 
 Restart-service dhcpserver
 
-Add-DHCPServerInDC -DnsName "$DC_HOSTNAME.$DOMAIN_NAME" -IPAddress $DHCP_IP_ADDR
+Add-DHCPServerInDC -DnsName "$DC_HOSTNAME" -IPAddress $DHCP_IP_ADDR
 
 # DHCP Scope
 Add-DHCPServerv4Scope -Name "$DHCP_SCOPE_NAME" -StartRange "$DHCP_START_RANGE" `
@@ -157,7 +161,12 @@ Powershell.exe -ExecutionPolicy Bypass "$($fileshare_creation_script.fullname)"
 ## MDT Setup:
 ## Thank you, Digressive/MDT-Setup for this awesome MDT setup script!
 ## Source: https://github.com/Digressive/MDT-Setup
-$mdt_setup_script = Get-ChildItem -Path "MDT-Setup" -Include "MDT-Setup.ps1" -File -Recurse -ErrorAction SilentlyContinue
+$mdt_setup_script = Get-ChildItem -Path "MDT-Setup" -Include "MDT-Setup.ps1" -File -Recurse -ErrorAction Stop
+
+## MDT Application Bundle Management Script - Thank you!
+## Source: https://github.com/damienvanrobaeys/Manage_MDT_Application_Bundle
+$manage_mdt_app_bundles = Get-ChildItem -Path "MDT-Setup" -Filter "Manage_Application_Bundle.ps1" -File -ErrorAction Stop
+. "$($manage_mdt_app_bundles.fullname)"
 
 ## MDT installation/configuration script requires internet - check by pingining google.com
 $ping_google = Test-Connection google.com -Count 1 -Quiet
@@ -197,7 +206,10 @@ if ($ping_google) {
     ## Enable MDT Monitor Service
     Enable-MDTMonitorService -EventPort 9800 -DataPort 9801 -Verbose
     Set-ItemProperty -path DS002: -name MonitorHost -value $env:COMPUTERNAME
-
+    ## Unsure if this is necessary:
+    # Set-ItemProperty -path DS002: -name MonitorEventPort -value 9800
+    # Set-ItemProperty -path DS002: -name MonitorDataPort -value 9801
+    
     ## find virtio drivers disk by targeting virtio msi
     ## Check for virtio 64-bit Windows driver installer MSI file by cycling through base of connected drives.
     $drives = Get-PSDrive -PSProvider FileSystem
@@ -255,29 +267,74 @@ if ($ping_google) {
             New-Item -Path $folder -ItemType Directory | Out-null
         }
     }
-    iwr "https://www.7-zip.org/a/7z2408-x64.msi" -outfile "$deploy_path\7zip\Files\7z2408-x64.msi"
-    iwr "https://chromeenterprise.google/download/thank-you/?platform=WIN64_MSI&channel=stable&usagestats=0#" -outfile "$deploy_path\Chrome\Files\googlechromestandaloneenterprise64.msi" -For
-    iwr "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -outfile "$deploy_path\VSCode\Files\VSCodeSetup-x64.exe"
+    # iwr "https://www.7-zip.org/a/7z2408-x64.msi" -outfile "$deploy_path\7zip\Files\7z2408-x64.msi"
+    # iwr "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi" -outfile "$(Join-Path $BaseDirectory "$deploy_path\Chrome\Files\googlechromestandaloneenterprise64.msi")"    
+    # iwr "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -outfile "$deploy_path\VSCode\Files\VSCodeSetup-x64.exe"
+
+    ## Add few second pause before importing applications to ensure files are downloaded.
+    # Start-Sleep -Seconds 5
 
     ## Import apps individually for now, may  be able to use a loop later?
+    @('7zip', 'Chrome', 'VSCode') | % {
+        $app_source = "$deploy_path\$_"
+        Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name "$_" -ShortName "$_" `
+            -CommandLine "Powershell.exe -executionPolicy bypass ./Deploy-$_.ps1 -DeploymentType Install -DeployMode Silent" `
+            -WorkingDirectory ".\Applications\$_" -ApplicationSourcePath "$app_source" -DestinationFolder "$_" `
+            -Comments "$_ PSADT" -Verbose
+    }
     ## 7zip
-    $7zip_source = "$deploy_path\7zip"
-    Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name '7zip' -ShortName '7zip' `
-        -CommandLine "Powershell.exe -executionPolicy bypass ./Deploy-7zip.ps1 -DeploymentType Install -DeployMode Silent" `
-        -WorkingDirectory ".\Applications\7zip\" -ApplicationSourcePath "$7zip_source" -DestinationFolder "7zip" `
-        -Comments "7zip PSADT" -Verbose
-    ## Chrome
-    $chrome_source = "$deploy_path\chrome"
-    Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'chrome' -ShortName 'chrome' `
-        -CommandLine "Powershell.exe -executionpolicy bypass ./Deploy-Chrome.ps1 -Deploymenttype Install -Deploymode Silent" `
-        -WorkingDirectory ".\Applications\chrome\" -ApplicationSourcePath "$chrome_source" -DestinationFolder "chrome" `
-        -Comments "Chrome PSADT" -Verbose
-    ## VSCode
-    $vscode_source = "$deploy_path\VSCode"
-    Import-MDTApplication -path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'VSCode' -ShortName 'VSCode' `
-        -CommandLine "Powershell.exe -ExecutionPolicy Bypass ./Deploy-VSCode.ps1 -DeploymentType Install -DeployMode Silent" `
-        -WorkingDirectory ".\Applications\VSCode" -ApplicationSourcePath "$vscode_source" -DestinationFolder "VSCode" `
-        -Comments 'VS Code PSADT' -Verbose
+    # $7zip_source = "$deploy_path\7zip"
+    # Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name '7zip' -ShortName '7zip' `
+    #     -CommandLine "Powershell.exe -executionPolicy bypass ./Deploy-7zip.ps1 -DeploymentType Install -DeployMode Silent" `
+    #     -WorkingDirectory ".\Applications\7zip\" -ApplicationSourcePath "$7zip_source" -DestinationFolder "7zip" `
+    #     -Comments "7zip PSADT" -Verbose
+    # ## Chrome
+    # $chrome_source = "$deploy_path\chrome"
+    # Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'chrome' -ShortName 'chrome' `
+    #     -CommandLine "Powershell.exe -executionpolicy bypass ./Deploy-Chrome.ps1 -Deploymenttype Install -Deploymode Silent" `
+    #     -WorkingDirectory ".\Applications\chrome\" -ApplicationSourcePath "$chrome_source" -DestinationFolder "chrome" `
+    #     -Comments "Chrome PSADT" -Verbose
+    # ## VSCode
+    # $vscode_source = "$deploy_path\VSCode"
+    # Import-MDTApplication -path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name 'VSCode' -ShortName 'VSCode' `
+    #     -CommandLine "Powershell.exe -ExecutionPolicy Bypass ./Deploy-VSCode.ps1 -DeploymentType Install -DeployMode Silent" `
+    #     -WorkingDirectory ".\Applications\VSCode" -ApplicationSourcePath "$vscode_source" -DestinationFolder "VSCode" `
+    #     -Comments 'VS Code PSADT' -Verbose
+
+
+
+
+    ## This would create an Application Bundle containing the three apps. I'm going to try a different method to force them to be installed during deployment first.    
+    $main_app_bundle_name = "MainApps"
+    Import-MDTApplication -Path "DS002:\Applications" -enable $true -reboot $false -hide $false -Name "$main_app_bundle_name" -ShortName "BasicApps" `
+        -Bundle -Comments "Basic Application Bundle"
+
+    ## update the deployment share:
+    Update-MDTDeploymentShare -Path "DS002:" -Verbose
+
+    ## Add applications to bundle:
+    @('7zip', 'chrome', 'vscode') | % {
+        Add-Dependency -DeploymentShare "$deployshare" -App_Name $_ -Bundle_Name "$main_app_bundle_name"
+    }
+
+    ## Get Application Bundle GUID from Applications.xml
+    $apps_xml = [xml]$(Get-Content "$deployshare\Control\Applications.xml")
+
+    $mainApps_bundle_guid = $apps_xml.applications.application | ? { $_.name -eq "$main_app_bundle_name" } | select -exp guid
+
+    ## Edit Task Sequence XML to add in the bundle GUID.
+    ## Resource: https://www.sharepointdiary.com/2020/11/xml-manipulation-in-powershell-comprehensive-guide.html#h-changing-xml-values-with-powershell
+    $task_sequence_xml = [System.Xml.XmlDocument]::new()
+    $task_sequence_xml.Load("$deployshare\Control\W10-22H2\ts.xml")
+    $installapps = $task_sequence_xml.sequence.group.step | ? { $_.name -eq 'install applications' }
+    $installapps.defaultvarlist.variable | % {
+        if ($_.name -eq 'applicationguid') {
+            $_.InnerText = $mainApps_bundle_guid
+        }
+    }
+
+    ## Save xml docs:
+    $task_sequence_xml.Save("$deployshare\Control\W10-22H2\ts.xml")
 
     ## update the deployment share:
     Update-MDTDeploymentShare -Path "DS002:" -Verbose

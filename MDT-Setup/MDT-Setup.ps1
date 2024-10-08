@@ -271,6 +271,8 @@ else {
         Write-Host ""
         Write-Host "Save the Windows.iso to " -NoNewline
         Write-Host "$PSscriptRoot" -ForegroundColor Green
+        "NPPR9-FWDCX-D2C8J-H872K-2YT43" | clip
+        Write-Host "The Windows 10 key has been copied to your clipboard." -Foregroundcolor Yellow
         Start-Process $PSScriptRoot\$MctExe -ArgumentList "/Eula Accept /Retail /MediaArch x64 /MediaLangCode $LangCode /MediaEdition Enterprise" -Wait
 
         If ($ConvertESD -eq "y") {
@@ -624,6 +626,11 @@ else {
         $XMLContent = $XMLContent -Replace '<SupportX86>True</SupportX86>', '<SupportX86>False</SupportX86>'
         $XMLContent = $XMLContent -Replace '<Boot.x64.SelectionProfile>All Drivers and Packages</Boot.x64.SelectionProfile>', '<Boot.x64.SelectionProfile>WinPE</Boot.x64.SelectionProfile>'
         $XMLContent | Out-File "$MdtDepShare\Control\Settings.xml"
+
+        ## Adding in - enabling of install applications phase?
+        $TaskSequenceXML = Get-Content "$MdtDepShare\Control\W10-22H2\ts.xml"
+        $TaskSequenceXML = $TaskSequenceXML -Replace '<step type="BDD_InstallApplication" name="Install Applications" disable="true" continueOnError="false" successCodeList="0 3010" description="" startIn="">', '<step type="BDD_InstallApplication" name="Install Applications" disable="false" continueOnError="false" successCodeList="0 3010" description="" startIn="">'
+        $TaskSequenceXML | Out-File "$MdtDepShare\Control\W10-22H2\ts.xml"
 
         ## Update Deploy share to generate boot media
         Write-Host "Updating Deploy share and generating boot media"

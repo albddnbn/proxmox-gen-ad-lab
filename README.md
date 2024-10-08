@@ -1,4 +1,4 @@
-# proxmox-gen-ad-lab
+# Gen-AD-Lab-PVE
 ![Powershell](https://img.shields.io/badge/language-Powershell-0078D4) ![Bash](https://img.shields.io/badge/Bash-05c100)  
 
 A collection of bash/powershell scripts to generate an Active Directory lab in Proxmox.
@@ -76,6 +76,8 @@ You can configure Active Directory domain-related settings in the config.ps1 fil
 - Installs and configures DHCP Server with single DHCP scope
 - Creates AD DS OUs, Groups, Users
 - Creates file shares for roaming profiles/folder redirection and configures permissions
+- Installs/configures MDT Server and dependencies
+- Imports VirtIO Drivers using virtio iso
 
 ## Example
 
@@ -139,9 +141,9 @@ Logging in will initiate the last step, Step3.ps1.
 
 ## Coming Soon:
 
-- MDT Server installation/configuration.
-
-- Improvment of User/Group creation and implentation of **least privilege** (esp in terms of MDT, right now there is just the one all-powerful LabAdmins group)
+- Improvement of MDT configuration - task sequence/applications/etc.
+- Installation/Configuration of WDS
+- Installation/Configuration of WSUS
 
 ## License
 
