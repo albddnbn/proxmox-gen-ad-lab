@@ -206,7 +206,10 @@ if ($ping_google) {
     ## Enable MDT Monitor Service
     Enable-MDTMonitorService -EventPort 9800 -DataPort 9801 -Verbose
     Set-ItemProperty -path DS002: -name MonitorHost -value $env:COMPUTERNAME
-
+    ## Unsure if this is necessary:
+    # Set-ItemProperty -path DS002: -name MonitorEventPort -value 9800
+    # Set-ItemProperty -path DS002: -name MonitorDataPort -value 9801
+    
     ## find virtio drivers disk by targeting virtio msi
     ## Check for virtio 64-bit Windows driver installer MSI file by cycling through base of connected drives.
     $drives = Get-PSDrive -PSProvider FileSystem
